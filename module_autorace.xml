@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_autorace" default="compile.module.autorace">
+  <dirname property="module.autorace.basedir" file="${ant.file.module_autorace}"/>
+  
+  <property name="module.jdk.home.autorace" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.autorace" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.autorace" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.autorace" value="-encoding UTF-8 -source 1.8 -target 1.8 ${compiler.args}"/>
+  
+  <property name="autorace.output.dir" value="${module.autorace.basedir}/out/production/AutoRace"/>
+  <property name="autorace.testoutput.dir" value="${module.autorace.basedir}/out/test/AutoRace"/>
+  
+  <path id="autorace.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="autorace.module.production.classpath">
+    <path refid="${module.jdk.classpath.autorace}"/>
+  </path>
+  
+  <path id="autorace.runtime.production.module.classpath">
+    <pathelement location="${autorace.output.dir}"/>
+  </path>
+  
+  <path id="autorace.module.classpath">
+    <path refid="${module.jdk.classpath.autorace}"/>
+    <pathelement location="${autorace.output.dir}"/>
+  </path>
+  
+  <path id="autorace.runtime.module.classpath">
+    <pathelement location="${autorace.testoutput.dir}"/>
+    <pathelement location="${autorace.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.autorace">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.autorace">
+    <patternset refid="excluded.from.module.autorace"/>
+  </patternset>
+  
+  <path id="autorace.module.sourcepath">
+    <dirset dir="${module.autorace.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.autorace" depends="compile.module.autorace.production,compile.module.autorace.tests" description="Compile module AutoRace"/>
+  
+  <target name="compile.module.autorace.production" depends="register.custom.compilers" description="Compile module AutoRace; production classes">
+    <mkdir dir="${autorace.output.dir}"/>
+    <javac2 destdir="${autorace.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.autorace}/javac">
+      <compilerarg line="${compiler.args.autorace}"/>
+      <bootclasspath refid="autorace.module.bootclasspath"/>
+      <classpath refid="autorace.module.production.classpath"/>
+      <src refid="autorace.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.autorace"/>
+    </javac2>
+    
+    <copy todir="${autorace.output.dir}">
+      <fileset dir="${module.autorace.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.autorace.tests" depends="register.custom.compilers,compile.module.autorace.production" description="compile module AutoRace; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.autorace" description="cleanup module">
+    <delete dir="${autorace.output.dir}"/>
+    <delete dir="${autorace.testoutput.dir}"/>
+  </target>
+</project>
